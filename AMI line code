@@ -1,0 +1,59 @@
+times=200; %number of iteration
+AMI_sum_f=0;
+psd_sum=0;
+for y =1:times
+Random_Signal = randi([0 1],1,1000);
+lastvalue=-1;
+AMI = Random_Signal;
+for i = 1 : length(AMI)
+if(AMI(i)== 1)
+AMI(i) = -1*lastvalue;
+lastvalue= AMI(i);
+else
+AMI(i) = 0;
+end
+end
+indx = 1;
+pulses_interval = 0:0.001:length(AMI);
+AMI_final = pulses_interval;
+for j = 1:length(pulses_interval);
+if pulses_interval(j)<=indx;
+AMI_final(j) = AMI(indx);
+else
+indx = indx+1;
+AMI_final(j) = AMI(indx);
+end
+end
+fs=1/0.001;
+ df=1/(length(pulses_interval )*0.001);
+ f = -(0.5*fs) :df :(0.5*fs-df);
+freq_fft = fft(AMI_final);
+freq_fft = fftshift(freq_fft)*0.001;
+xf_magnitude = freq_fft;
+AMI_sum_f = AMI_sum_f + abs(xf_magnitude);
+power = abs((xf_magnitude).^2));
+ psd_sum= psd_sum+ power;
+end
+figure
+plot(pulses_interval,AMI_final)
+axis([0 25 -1.5 1.5]);
+title("AMI time domain",'FontSize',20)
+xlabel("t/Tb(sec.)",'FontSize',12)
+ylabel("Volt(v)",'FontSize',12)
+axis on;
+grid on;
+figure
+plot(f,abs(AMI_sum_f/times),'r','linewidth',1.5)
+title(' AMI frequency domain','FontSize',20)
+xlabel('f/Rb(Hz)','FontSize',12)
+ylabel('Volt(v)','FontSize',12)
+xlim([-5 5])
+axis on;
+grid on;
+figure
+plot(f,(psd_sum/times),'k','linewidth',1.5);
+grid
+title('AMI average power in spectral domain','FontSize',20)
+xlabel('f/Rb(Hz)','FontSize',12)
+ylabel('Volt^2(v^2)','FontSize',12)
+axis([-5 5 0 10]);
