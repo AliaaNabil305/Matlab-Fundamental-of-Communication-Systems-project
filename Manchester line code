@@ -1,0 +1,50 @@
+times=200; %number of iteration
+Manchester_sum_f=0;
+psd_sum=0;
+for y =1:times
+bits = randi([0,1],1,1000);
+bitrate= 1;
+interval_time = 0:0.001:length(bits);
+func = zeros(1,length(interval_time));
+for i = 0:length(bits)-1
+if bits(i+1) == 1
+func(i*200+1:(i+0.5)*200) = 1;
+func((0.5+i)*200 :(i+1)*200)=-1;
+else
+func(i*200+1:(i+0.5)*200)=-1;
+func((0.5+i)*200 :(i+1)*200)=1;
+end
+end
+fs=1/0.001;
+ df=1/(length(interval_time )*0.001);
+ f = -(0.5*fs) :df :(0.5*fs-df);
+Manchester_f = fft(func);
+Manchester_f = fftshift(Manchester_f)*0.001;
+xf_magnitude = Manchester_f;
+Manchester_sum_f = Manchester_sum_f + abs(xf_magnitude);
+power = abs((xf_magnitude).^2));
+ psd_sum= psd_sum+ power;
+end
+figure
+plot(interval_time,func)
+axis([0 15 -1.5 1.5]);
+title("Manchester time domain",'FontSize',20)
+xlabel("t/Tb(sec.)",'FontSize',12)
+ylabel("Volt(v)",'FontSize',12)
+axis on;
+grid on;
+figure
+plot(f,abs(Manchester_sum_f/times),'r','linewidth',1.5)
+title(' Manchester frequency domain','FontSize',20)
+xlabel('f/Rb(Hz)','FontSize',12)
+ylabel('Volt(v)','FontSize',12)
+xlim([-30 30])
+axis on;
+grid on;
+figure
+plot(f,(psd_sum/times),'k','linewidth',1.5);
+grid
+title('Manchester average power in spectral domain','FontSize',20)
+xlabel('f/Rb(Hz)','FontSize',12)
+ylabel('Volt^2(v^2)','FontSize',12)
+axis([-50 50 0 0.35]);
