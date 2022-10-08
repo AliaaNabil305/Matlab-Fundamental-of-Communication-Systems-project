@@ -1,0 +1,57 @@
+times=200; %number of iteration
+polar_sum_f=0;
+psd_sum=0;
+for y =1:times
+pNR = randi([0 1],1,1000);
+ts=0.01;
+for i = 1 : length(pNR)
+if(pNR(i)== 1)
+pNR(i) = 1;
+else
+pNR(i) = -1;
+end
+end
+k = 1;
+interval_time = 0:ts:length(pNR);
+p=[];
+for j = 1:length(interval_time);
+if interval_time(j)<=k;
+p(j) = pNR(k);
+else
+ k = k+1;
+p(j) = pNR(k);
+end
+end
+fs=1/0.01;
+ df=1/(length(interval_time )*0.01);
+ f = -(0.5*fs) :df :(0.5*fs-df);
+freq_fft = fft(p);
+freq_fft = fftshift(freq_fft)*0.01;
+xf_magnitude = freq_fft;
+polar_sum_f = polar_sum_f + abs(xf_magnitude);
+power = abs((xf_magnitude).^2));
+ psd_sum= psd_sum+ power;
+end
+figure
+plot(interval_time,p)
+axis([0 25 -1.5 1.5]);
+title("polar time domain",'FontSize',20)
+xlabel("t/Tb(sec.)",'FontSize',12)
+ylabel("Volt(v)",'FontSize',12)
+axis on;
+grid on;
+figure
+plot(f,abs(polar_sum_f/times),'r','linewidth',1.5)
+title(' polar frequency domain','FontSize',20)
+xlabel('f/Rb(Hz)','FontSize',12)
+ylabel('Volt(v)','FontSize',12)
+xlim([-5 5])
+axis on;
+grid on;
+figure
+plot(f,(psd_sum/times),'k','linewidth',1.5);
+grid
+title('polar average power in spectral domain','FontSize',20)
+xlabel('f/Rb(Hz)','FontSize',12)
+ylabel('Volt^2(v^2)','FontSize',12)
+axis([-5 5 0 15]);
