@@ -1,0 +1,52 @@
+times=200; %number of iteration
+unipolar_sum_f=0;
+psd_sum=0;
+for y =1:times
+unpNR = randi([0 1],1,1000);
+ts=0.01;
+for i = 1 : length(unpNR)
+if(unpNR(i)== 1)
+unpNR(i) = 1;
+else
+unpNR(i) = 0;
+end
+end
+k = 1;
+interval_time = 0:ts:length(unpNR);
+p=[];
+for j = 1:length(interval_time);
+if interval_time(j)<=k;
+p(j) = unpNR(k);
+else
+ k = k+1;
+p(j) = unpNR(k);
+end
+end
+fs=1/0.01;
+ df=1/(length(interval_time )*0.01);
+ f = -(0.5*fs) :df :(0.5*fs-df);
+freq_fft = fft(p);
+freq_fft = fftshift(freq_fft)*0.01;
+xf_magnitude = freq_fft;
+unipolar_sum_f =unipolar_sum_f + abs(xf_magnitude);
+power = abs((xf_magnitude).^2));
+ psd_sum= psd_sum+ power;
+end
+figure; 
+plot(interval_time,p); 
+title("Unipolar NRZ time domain")
+xlabel("t/Tb(sec.)",'FontSize',12)
+ylabel("Volt(v)",'FontSize',12)
+axis([0 70 -1 2])
+figure; 
+plot(f,abs(unipolar_sum_f/times),'r');
+title('Unipolar NRZ frequency domain')
+xlabel('f/Rb(Hz)','FontSize',12)
+ylabel('(v)','FontSize',12)
+axis([-5 5 0 30]);
+figure 
+plot(f,(psd_sum/times),'k');
+title('Unipolar average power in spectral domain')
+xlabel('f/Rb(Hz)','FontSize',12)
+ylabel('(v^2)','FontSize',12)
+axis([-5 5 0 500]);
